@@ -7,6 +7,7 @@ There is two version of VATSIM Status that's currently running, TXT and JSON. Th
 
 This script made with Python and doesn't require any specific Python version or any extra library to download.
 The recommended version is Python 3.7.6 or newer. You can check your Python version by using command:
+
 In Windows Command Prompt:
 > python -V
 
