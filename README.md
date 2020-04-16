@@ -26,6 +26,7 @@ Follow step below to insert command into cronjob:
 - Day: Every day (*)
 - Month: Every month (*)
 - Weekday: Every day (*)
+
 Command:
 > path/to/folder/vatsim-status.sh
 
