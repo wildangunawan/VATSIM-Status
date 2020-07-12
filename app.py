@@ -16,6 +16,35 @@ dataserver = {}
 dataclient_ATC = {}
 dataclient_PILOT = {}
 
+# rating list
+rating_code = {
+    0:"Inactive",
+    1:"OBS",
+    2:"S1",
+    3:"S2",
+    4:"S3",
+    5:"C1",
+    7:"C3",
+    8:"INS",
+    10:"INS+",
+    11:"Supervisor",
+    12:"Administrator"
+}
+
+rating_name = {
+    0:"Inactive",
+    1:"Observer",
+    2:"Student",
+    3:"Student 2",
+    4:"Student 3",
+    5:"Controller",
+    7:"Senior Controller",
+    8:"Instructor",
+    10:"Senior Instructor",
+    11:"Supervisor",
+    12:"Administrator",
+}
+
 # data yang gak diambil
 data_delete_ATC = ["altitude", "groundspeed", "heading", "qnh_i_hg", "qnh_mb", "transponder", "planned"]
 data_delete_pilot = ["atis_message", "facilitytype", "visualrange", "rating"]
@@ -35,7 +64,13 @@ for key, value in data.items():
                 for key, value in client.items():
                     # cek kalo key nggak diambil
                     if "planned" not in key and key not in data_delete_ATC:
-                        data_baru[key] = value
+                        # ganti rating ke humanized
+                        if key == "rating":
+                            data_baru['rating'] = rating_code[key]
+                            data_baru['rating_code'] = value
+                            data_baru['rating_name'] = rating_name[key]
+                        else:
+                            data_baru[key] = value
                 
                 # save in client data variable
                 dataclient_ATC[client['callsign']] = data_baru
