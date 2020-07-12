@@ -66,9 +66,9 @@ for key, value in data.items():
                     if "planned" not in key and key not in data_delete_ATC:
                         # ganti rating ke humanized
                         if key == "rating":
-                            data_baru['rating'] = rating_code[key]
+                            data_baru['rating'] = rating_code[value]
                             data_baru['rating_code'] = value
-                            data_baru['rating_name'] = rating_name[key]
+                            data_baru['rating_name'] = rating_name[value]
                         else:
                             data_baru[key] = value
                 
