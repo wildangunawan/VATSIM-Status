@@ -3,6 +3,8 @@
 VATSIM Status is a list of online users in VATSIM. It's open for public and doesn't require any token or verification.
 There is two version of VATSIM Status that's currently running, TXT and JSON. This parser will parse JSON file instead.
 
+WARNING: This version uses the old VATSIM data which will be down by January 2021. Use the [newest version](https://github.com/wildangunawan/VATSIM-Status) instead.
+
 ### Prerequisites
 
 This script made with Python and doesn't require any specific Python version or any extra library to download.
