@@ -12,98 +12,103 @@ with open("vatsim-data.json", "r", errors="ignore") as f:
 
 # Set all variable to store
 # client and server data
-dataserver = {}
-dataclient_ATC = {}
-dataclient_PILOT = {}
+server = {}
+facilities = {}
 
-# rating list
-rating_code = {
-    0:"Inactive",
-    1:"OBS",
-    2:"S1",
-    3:"S2",
-    4:"S3",
-    5:"C1",
-    7:"C3",
-    8:"INS",
-    10:"INS+",
-    11:"Supervisor",
-    12:"Administrator"
-}
+# atc
+atc = {}
+atc_rating = {}
 
-rating_name = {
-    0:"Inactive",
-    1:"Observer",
-    2:"Student",
-    3:"Student 2",
-    4:"Student 3",
-    5:"Controller",
-    7:"Senior Controller",
-    8:"Instructor",
-    10:"Senior Instructor",
-    11:"Supervisor",
-    12:"Administrator",
-}
+# pilot
+pilot = {}
+pilot_rating = {}
 
-# data yang gak diambil
-data_delete_ATC = ["altitude", "groundspeed", "heading", "qnh_i_hg", "qnh_mb", "transponder", "planned"]
-data_delete_pilot = ["atis_message", "facilitytype", "visualrange", "rating"]
+# store data
+# server
+for s in data['servers']:
+    server[s['ident']] = {
+        "name": s['name'],
+        "hostname": s['hostname_or_ip'],
+        "location": s['location']
+    }
 
-# for loop over data
-for key, value in data.items():
-    # check which key right now
-    if key == "clients":
-        # loop over client data
-        for client in value:
-            data_baru = {}
-            
-            # if client is ATC
-            if client['clienttype'] == "ATC":
-                
-                # for loop over client data
-                for key, value in client.items():
-                    # cek kalo key nggak diambil
-                    if "planned" not in key and key not in data_delete_ATC:
-                        # ganti rating ke humanized
-                        if key == "rating":
-                            data_baru['rating'] = rating_code[value]
-                            data_baru['rating_code'] = value
-                            data_baru['rating_name'] = rating_name[value]
-                        else:
-                            data_baru[key] = value
-                
-                # save in client data variable
-                dataclient_ATC[client['callsign']] = data_baru
-                
-            # if client is pilot
-            elif client['clienttype'] == "PILOT":
-                
-                # cek kalo key nggak diambil
-                for key, value in client.items():
-                    
-                    # cek kalo key nggak diambil
-                    if key not in data_delete_pilot:
-                        data_baru[key] =  value
-                
-                # save in client data variable
-                dataclient_PILOT[client['callsign']] = data_baru
-                
-    elif key == "servers":
-        # loop over server data
-        for server in value:
-            dataserver[server['ident']] = server
+# facilities
+for f in data['facilities']:
+    facilities[f['id']] = {
+        "short": f['short'],
+        "long": f['long']
+    }
+
+# atc rating
+for r in data['ratings']:
+    atc_rating[r['id']] = {
+        "short": r['short'],
+        "long": r['long']
+    }
+
+# pilot rating
+for r in data['pilot_ratings']:
+    pilot_rating[r['id']] = {
+        "short": r['short_name'],
+        "long": r['long_name']
+    }
+
+# atc
+for a in data['controllers']:
+    if a['text_atis'] != None:
+        text_atis = "\n".join(list(a['text_atis']))
+
+    atc[a['callsign']] = {
+        "cid": a['cid'],
+        "name": a['name'],
+        "frequency": a['frequency'],
+        "rating": f"{atc_rating[a['rating']]['long']} {atc_rating[a['rating']]['short']}",
+        "facilities": f"{facilities[a['facility']]['long']} {facilities[a['facility']]['short']}",
+        "visual_range": a['visual_range'],
+        "atis": text_atis
+    }
+
+# pilot
+for p in data['pilots']:
+    pilot[p['callsign']] = {
+        "cid": p['cid'],
+        "name": p['name'],
+        "rating": f"{pilot_rating[p['pilot_rating']]['long']} {pilot_rating[p['pilot_rating']]['short']}",
+        "current_latitude": p['latitude'],
+        "current_longitude": p['longitude'],
+        "current_altitude": p['altitude'],
+        "current_groundspeed": p['groundspeed'],
+        "current_transponder": p['transponder'],
+    }
+
+    # have flight plan?
+    if p['flight_plan'] != None:
+        fpl = {
+            "flight_rules": "IFR" if p['flight_plan']['flight_rules'] == "I" else "VFR",
+            "planned_aircraft": p['flight_plan']['aircraft'],
+            "planned_departure": p['flight_plan']['departure'],
+            "planned_arrival": p['flight_plan']['arrival'],
+            "planned_alternate": p['flight_plan']['alternate'],
+            "planned_route": p['flight_plan']['route'],
+            "planned_altitude": p['flight_plan']['altitude'],
+            "planned_deptime": p['flight_plan']['deptime'],
+            "planned_enroute": p['flight_plan']['enroute_time'],
+            "remarks": p['flight_plan']['remarks']
+        }
+
+        pilot[p['callsign']].update(fpl)
 
 # convert data to JSON
-dataserver = json.dumps(dataserver, sort_keys=True)
-dataclient_ATC = json.dumps(dataclient_ATC, sort_keys=True)
-dataclient_PILOT = json.dumps(dataclient_PILOT, sort_keys=True)
+server = json.dumps(server, sort_keys=True)
+atc = json.dumps(atc, sort_keys=True)
+pilot = json.dumps(pilot, sort_keys=True)
 
 # save data to a external JSON file
 with open("result/server.json", "w+") as f:
-    f.write(dataserver)
+    f.write(server)
 
 with open("result/atc.json", "w+") as f:
-    f.write(dataclient_ATC)
+    f.write(atc)
 
 with open("result/pilot.json", "w+") as f:
-    f.write(dataclient_PILOT)
+    f.write(pilot)
