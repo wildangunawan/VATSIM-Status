@@ -1,5 +1,5 @@
 # Import all required packages
-import urllib3, random, json
+import urllib3, random
 
 # VATSIM Data Link variable
 vatsimDataLink = []
@@ -10,7 +10,7 @@ http = urllib3.PoolManager()
 # send request
 r = http.request(
             "GET", 
-            "http://status.vatsim.net/status.txt",
+            "http://status.vatsim.net",
             headers={
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
             }
@@ -30,7 +30,7 @@ for line in data:
 linkToDownload = random.choice(vatsimDataLink)
 
 # Download the file
-with open('vatsim-data.json', 'w') as out:
+with open('vatsim-data.json', 'w+') as out:
     # send request
     r = http.request('GET', linkToDownload)
 
