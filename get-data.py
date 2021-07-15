@@ -1,30 +1,11 @@
 # Import all required packages
-import urllib3, random
+import requests, random
+
+# Make request and parse
+r = requests.get('http://status.vatsim.net/status.json').json()
 
 # VATSIM Data Link variable
-vatsimDataLink = []
-
-# client
-http = urllib3.PoolManager()
-
-# send request
-r = http.request(
-            "GET", 
-            "http://status.vatsim.net",
-            headers={
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-            }
-)
-
-# get data
-data = r.data.decode('utf-8').split("\r\n")
-
-# Iterate over data
-for line in data:
-    # Check if json3 exists
-    if "json3=" in line:
-        # If exists, split data and get the link
-        vatsimDataLink.append(line.split("=")[1])
+vatsimDataLink = r["data"]["v3"]
 
 # Get random link to download
 linkToDownload = random.choice(vatsimDataLink)
@@ -32,10 +13,7 @@ linkToDownload = random.choice(vatsimDataLink)
 # Download the file
 with open('vatsim-data.json', 'w+') as out:
     # send request
-    r = http.request('GET', linkToDownload)
-
-    # read data
-    data = r.data.decode('utf-8')
+    r = requests.get(linkToDownload)
 
     # save data
-    out.write(data)
+    out.write(r.text)
